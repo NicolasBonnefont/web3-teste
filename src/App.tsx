@@ -1,8 +1,9 @@
-import { Button, Divider, Flex, Heading, Input, Stack, Text } from "@chakra-ui/react"
+import { Button, Divider, Flex, Heading, Input, Stack, Text, useToast } from "@chakra-ui/react"
 import { useEffect, useState } from "react"
 import fundo from './assets/fundo.jpg'
 import { IoWalletOutline } from "react-icons/io5";
 import { MetaMaskInpageProvider } from "@metamask/providers";
+import { ethers } from 'ethers';
 
 declare global {
   interface Window {
@@ -11,17 +12,55 @@ declare global {
 }
 
 function App() {
-  const [error, setError] = useState(null)
+  const [error, setError] = useState('')
+  const [wallet, setWallet] = useState('')
 
-  useEffect(()=>{
-    signInMetamask()
-  }, [])
+  const toast = useToast()
+
+  useEffect(() => {
+
+    if (error !== '') {
+      toast({
+        description: `${error}`,
+        position: "top",
+        status: 'warning'
+      })
+      setError('')
+    }
+
+  }, [error])
 
 
   async function signInMetamask() {
-    
+
     if (!window.ethereum) {
-      console.log('no metamsk ')
+      setError('Metamesk não localizada')
+    }
+    try {
+
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const accounts = await provider.send("eth_requestAccounts", []);
+
+
+      if (!accounts || !accounts.length) {
+        toast({
+          description: 'Carteira não encontrada / Permitida 😢',
+          position: 'top',
+          status: 'warning'
+
+        })
+        setError('Wallet not found/allowed!');
+        setError('')
+        return
+      }
+
+      localStorage.setItem('wallet', accounts[0]);
+
+      setWallet(accounts[0]);
+
+
+    } catch (err: any) {
+      setError(err.message);
     }
 
   }
@@ -49,11 +88,12 @@ function App() {
           ml='auto'
           mr='8'
           colorScheme='green'
+          onClick={signInMetamask}
         >
           <Stack direction='row' alignItems='center'>
             <Text>Conectar Carteira</Text>
 
-            <IoWalletOutline size='24px'/>
+            <IoWalletOutline size='24px' />
           </Stack>
 
 

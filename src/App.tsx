@@ -3,9 +3,6 @@ import { ethers } from 'ethers';
 import { useEffect, useState } from "react"
 import fundo from './assets/fundo.jpg'
 import { IoWalletOutline } from "react-icons/io5";
-import { MetaMaskInpageProvider } from "@metamask/providers";
-
-
 
 function App() {
   const [error, setError] = useState('')
@@ -29,7 +26,7 @@ function App() {
 
     if (error !== '') {
       toast({
-        description: `${error}`,
+        description: `${error} 😢`,
         position: "top",
         status: 'warning'
       })
@@ -199,7 +196,7 @@ function App() {
 
               :
 
-              <Heading fontSize='22px' color='white'>Conecte a carteira para continuar !</Heading>
+              <Heading fontSize='18px' color='white'>Conecte a carteira para continuar !</Heading>
           }
 
 

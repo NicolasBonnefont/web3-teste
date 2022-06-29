@@ -1,21 +1,29 @@
 import { Button, Divider, Flex, Heading, Input, Stack, Text, useToast } from "@chakra-ui/react"
+import { ethers } from 'ethers';
 import { useEffect, useState } from "react"
 import fundo from './assets/fundo.jpg'
 import { IoWalletOutline } from "react-icons/io5";
 import { MetaMaskInpageProvider } from "@metamask/providers";
-import { ethers } from 'ethers';
 
-declare global {
-  interface Window {
-    ethereum: MetaMaskInpageProvider;
-  }
-}
+
 
 function App() {
   const [error, setError] = useState('')
-  const [wallet, setWallet] = useState('')
+  const [wallet, setWallet] = useState(null || '')
+  const [balance, setBalance] = useState(0 || '')
 
   const toast = useToast()
+
+  useEffect(() => {
+
+    const wallet_storage = localStorage.getItem('wallet')
+
+    if (wallet_storage) {
+
+      setWallet(wallet_storage)
+    }
+
+  }, [])
 
   useEffect(() => {
 
@@ -41,6 +49,9 @@ function App() {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const accounts = await provider.send("eth_requestAccounts", []);
 
+      const balance = await provider.getBalance(accounts[0]);
+
+      setBalance(ethers.utils.formatEther(balance.toString()));
 
       if (!accounts || !accounts.length) {
         toast({
@@ -91,8 +102,9 @@ function App() {
           onClick={signInMetamask}
         >
           <Stack direction='row' alignItems='center'>
-            <Text>Conectar Carteira</Text>
-
+            {
+              wallet ? <Text>Carteira: {wallet}</Text> : <Text>Conectar Carteira</Text>
+            }
             <IoWalletOutline size='24px' />
           </Stack>
 
@@ -102,7 +114,7 @@ function App() {
 
       <Flex
         w='380px'
-        h='60vh'
+        h={wallet ? '60vh' : '20vh'}
         bg='#264478d3'
         borderRadius='18'
         border='1px solid #ffffff11'
@@ -114,15 +126,18 @@ function App() {
         mb='auto'
       >
 
-        <Stack>
-          <Text
-            textAlign='center'
-            color='white'
-          >
-            Saldo atual da conta:
-          </Text>
+        <Stack textAlign='center' spacing='1'>
 
-          <Heading color='white'>$3000,80</Heading>
+          {wallet &&
+            <Text color='white'> Saldo atual da conta:</Text>
+          }
+
+          {
+            wallet ?
+              <Heading fontSize='22px' color='white'>$ {balance}</Heading>
+              :
+              null
+          }
 
         </Stack>
 
@@ -138,43 +153,55 @@ function App() {
           p='2'
         >
 
-          <Stack w='100%' mt='auto'>
-            <Text color='white'>Quantidade:</Text>
-            <Input
-              w='100%'
-              h='48px'
-              borderRadius='full'
-              bg='#ffffff11'
-              p='2'
-              color='white'
-            />
+          {
+            wallet ?
+              <>
 
-            <Text color='white'>Para: </Text>
+                <Text color='#fff'>Enviar fundos para outra carteira 😎</Text>
+                <Stack w='100%' mt='auto'>
+                  <Text color='white'>Quantidade:</Text>
+                  <Input
+                    w='100%'
+                    h='48px'
+                    borderRadius='full'
+                    bg='#ffffff11'
+                    p='2'
+                    color='white'
+                  />
 
-            <Stack spacing='1'>
-              <Input
-                w='100%'
-                h='48px'
-                borderRadius='full'
-                bg='#ffffff11'
-                p='2'
-                color='white'
-              />
-              <Text color='gray.400' fontSize='12px'>**Informe carteira BSC que recebera a quantia</Text>
-            </Stack>
+                  <Text color='white'>Para endereço: </Text>
 
-          </Stack>
+                  <Stack spacing='1'>
+                    <Input
+                      w='100%'
+                      h='48px'
+                      borderRadius='full'
+                      bg='#ffffff11'
+                      p='2'
+                      color='white'
+                    />
+                    <Text color='gray.400' fontSize='12px'>**Informe carteira BSC que recebera a quantia</Text>
+                  </Stack>
 
-          <Divider mt='auto' mb='auto' />
-          <Button
-            borderRadius='full'
-            h='48px'
-            colorScheme='blue'
-            w='100%'
-            mb='auto'
-          >
-            Enviar
-          </Button>
+                </Stack>
+
+                <Divider mt='auto' mb='auto' />
+                <Button
+                  borderRadius='full'
+                  h='48px'
+                  colorScheme='blue'
+                  w='100%'
+                  mb='auto'
+                >
+                  Enviar
+                </Button>
+              </>
+
+              :
+
+              <Heading fontSize='22px' color='white'>Conecte a carteira para continuar !</Heading>
+          }
+
 
         </Flex>
 

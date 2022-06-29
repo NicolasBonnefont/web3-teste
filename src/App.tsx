@@ -6,8 +6,8 @@ import { IoWalletOutline } from "react-icons/io5";
 
 function App() {
   const [error, setError] = useState('')
-  const [wallet, setWallet] = useState(null || '')
-  const [balance, setBalance] = useState(0 || '')
+  const [wallet, setWallet] = useState('')
+  const [balance, setBalance] = useState('')
 
   const toast = useToast()
 
@@ -15,10 +15,7 @@ function App() {
 
     const wallet_storage = localStorage.getItem('wallet')
 
-    if (wallet_storage) {
-
-      setWallet(wallet_storage)
-    }
+    signInMetamask()
 
   }, [])
 
@@ -35,6 +32,12 @@ function App() {
 
   }, [error])
 
+  window.ethereum.on('accountsChanged', async () => {
+    localStorage.clear()
+    setWallet('')
+    setBalance('')
+    signInMetamask()
+  });
 
   async function signInMetamask() {
 

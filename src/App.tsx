@@ -15,6 +15,10 @@ function App() {
 
     const wallet_storage = localStorage.getItem('wallet')
 
+    if (wallet_storage) {
+      return
+    }
+
     signInMetamask()
 
   }, [])
@@ -32,11 +36,12 @@ function App() {
 
   }, [error])
 
-  window.ethereum.on('accountsChanged', async () => {
-    localStorage.clear()
-    setWallet('')
-    setBalance('')
-    signInMetamask()
+  window.ethereum.on('accountsChanged', (accounts: Array<string>) => {
+    if (accounts.length == 0) {
+      localStorage.clear()
+      setWallet('')
+      setBalance('')
+    }
   });
 
   async function signInMetamask() {

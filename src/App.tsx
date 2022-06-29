@@ -13,12 +13,6 @@ function App() {
 
   useEffect(() => {
 
-    const wallet_storage = localStorage.getItem('wallet')
-
-    if (wallet_storage) {
-      return
-    }
-
     signInMetamask()
 
   }, [])
